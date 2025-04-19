@@ -1,0 +1,49 @@
+input {
+    all: unset; /* сбрасывает ВСЕ стили по умолчанию */
+    /* border: 2px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 16px; */
+    padding: 4px;
+    box-sizing: border-box;
+  }
+.form{
+display: flex;
+justify-content: center;
+padding: 20px 0;
+gap: 8px;
+}
+.form input{
+border: 1px solid #808080;
+border-radius: 4px;
+width: 272px;
+height: 40px;
+padding: 8px;
+}
+.form input:hover{
+border: 1px solid #000;
+border-radius: 4px;
+}
+.form input:focus{
+border: 1px solid #4e75ff !important;
+}
+
+button{
+width: 96px;
+height: 40px;
+background: #4e75ff;
+border-radius: 4px;
+color: #fff;
+}
+
+button:hover{
+    background: #6c8cff;
+}
+.load-more-wraper{
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+.load-more-hidden{
+    display: none;
+}

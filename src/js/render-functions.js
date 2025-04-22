@@ -1,15 +1,18 @@
 import iziToast from 'izitoast';
 import SimpleLightbox from 'simplelightbox';
-
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const gallery = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 const loadMore = document.querySelector('.load-more');
 
+// 💡 Инициализация lightbox ДО createGallery
+const lightbox = new SimpleLightbox('.gallery a', {});
+
 export async function createGallery(imagesPromise) {
   try {
     const items = await imagesPromise;
+
     const markup = items.hits
       .map(
         ({
@@ -37,6 +40,10 @@ export async function createGallery(imagesPromise) {
       .join('');
 
     gallery.insertAdjacentHTML('beforeend', markup);
+
+    // Обновление lightbox после вставки разметки
+    lightbox.refresh();
+
     if (items.page === items.totalPages) {
       hideLoadMoreButton();
       iziToast.info({
@@ -45,11 +52,16 @@ export async function createGallery(imagesPromise) {
         timeout: 2000,
       });
     }
-    lightbox.refresh();
   } catch (error) {
     console.error('Error creating gallery:', error);
+    iziToast.error({
+      message: 'Something went wrong while creating the gallery.',
+      position: 'topRight',
+      timeout: 3000,
+    });
   }
 }
+
 export function clearGallery() {
   gallery.innerHTML = '';
 }
@@ -66,4 +78,3 @@ export function showLoadMoreButton() {
 export function hideLoadMoreButton() {
   loadMore.classList.add('load-more-hidden');
 }
-const lightbox = new SimpleLightbox('.gallery a', {});

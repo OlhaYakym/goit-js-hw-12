@@ -11,6 +11,7 @@ import {
 } from './js/render-functions';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
+
 const form = document.querySelector('.form');
 const loadMoreBtn = document.querySelector('.load-more');
 let inputValue = null;
@@ -19,69 +20,61 @@ let page = null;
 form.addEventListener('submit', async event => {
   event.preventDefault();
   page = 1;
-  inputValue = form.elements['search-text'].value;
+  inputValue = form.elements['search-text'].value.trim();
   clearGallery();
+
   if (inputValue === '') {
     iziToast.error({
-      message: 'Please enter a search inputValue!',
+      message: 'Please enter a search query!',
       position: 'topRight',
       timeout: 2000,
     });
     return;
   }
+
   showLoader();
-  const data = getImagesByQuery(inputValue, page);
-  // const totalPages = await countTotalPages(data);
-  // console.log('total pages', totalPages);
-  // if (page === totalPages) {
-  //   hideLoadMoreButton();
-  // }
-  // console.log('DATA', await data);
-  data
-    .then(response => {
-      // console.log('response!!!', response);
-      if (response.data.hits.length === 0) {
-        iziToast.error({
-          message:
-            'Sorry, there are no images matching your search inputValue. Please try again!',
-          position: 'topRight',
-          timeout: 2000,
-        });
-        return;
-      }
-      // console.log('response_main', response);
-      createGallery(response);
-      showLoadMoreButton();
-    })
-    .catch(() => {
+
+  try {
+    const response = await getImagesByQuery(inputValue, page);
+
+    if (!response.data.hits.length) {
       iziToast.error({
-        message: 'Error fetching data from Pixabay',
-        position: 'topCenter',
-        timeout: 3000,
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+        position: 'topRight',
+        timeout: 2000,
       });
-    })
-    .finally(() => {
-      hideLoader();
+      hideLoadMoreButton();
+      return;
+    }
+
+    createGallery(response);
+    showLoadMoreButton();
+  } catch (error) {
+    iziToast.error({
+      message: 'Error fetching data from Pixabay',
+      position: 'topCenter',
+      timeout: 3000,
     });
-  form.reset();
-  
+  } finally {
+    hideLoader();
+    form.reset();
+  }
 });
 
 loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
 
 async function onLoadMoreBtnClick() {
   page += 1;
-  // console.log('click');
   const galery_item = document.querySelector('.gallery-item');
   const galery_item_height = galery_item.getBoundingClientRect().height;
-  // console.log('galery_item_height', galery_item_height);
-  
-  // Перемещаем loader-wraper после галереи
+
   const loaderWrapper = document.querySelector('.loader-wraper');
   const gallery = document.querySelector('.gallery');
   gallery.insertAdjacentElement('afterend', loaderWrapper);
 
   showLoader();
+
   try {
     const data = await getImagesByQuery(inputValue, page);
     createGallery(data);
@@ -96,7 +89,6 @@ async function onLoadMoreBtnClick() {
         behavior: 'smooth',
       });
     });
-    
   } catch (error) {
     iziToast.error({
       message: 'Error fetching data from Pixabay',
@@ -105,6 +97,5 @@ async function onLoadMoreBtnClick() {
     });
   } finally {
     hideLoader();
-   
   }
 }
